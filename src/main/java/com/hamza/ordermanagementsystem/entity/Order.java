@@ -16,7 +16,7 @@ import java.util.List;
 @Table(name = "orders")
 public class Order extends BaseEntity {
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -28,7 +28,8 @@ public class Order extends BaseEntity {
     // 🔥 KEY CHANGE HERE
     @OneToMany(mappedBy = "order",
             cascade = CascadeType.ALL,
-            orphanRemoval = true)
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
     private List<OrderItem> orderItems = new ArrayList<>();
 
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)

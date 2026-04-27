@@ -7,10 +7,9 @@ import java.math.BigDecimal;
 
 @Data
 @Builder
-public class OrderItemResponse {
-
-    private Long productId;
-    private String productName;
-    private Integer quantity;
+public class ProductResponse {
+    private Long id;
+    private String name;
     private BigDecimal price;
+    private Integer stock;
 }

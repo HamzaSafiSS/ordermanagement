@@ -5,6 +5,8 @@ import com.hamza.ordermanagementsystem.dto.response.OrderResponse;
 import com.hamza.ordermanagementsystem.service.OrderService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/orders")
 public class OrderController {
@@ -18,6 +20,11 @@ public class OrderController {
     @PostMapping
     public OrderResponse createOrder(@RequestBody CreateOrderRequest request) {
         return orderService.createOrder(request);
+    }
+
+    @GetMapping
+    public List<OrderResponse> getAllOrders() {
+        return orderService.getAllOrders();
     }
 
     @DeleteMapping("/{orderId}/items/{itemId}")

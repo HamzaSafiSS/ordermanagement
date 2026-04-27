@@ -69,6 +69,17 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public List<OrderResponse> getAllOrders() {
+
+        List<Order> orders = orderRepository.findAll();
+        // ❌ This will cause N+1 (try this first)
+
+        return orders.stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    @Override
     @Transactional
     public void removeItem(Long orderId, Long orderItemId) {
 
@@ -96,20 +107,19 @@ public class OrderServiceImpl implements OrderService {
 
     private OrderResponse mapToResponse(Order order) {
 
-        List<OrderItemResponse> items = order.getOrderItems()
-                .stream()
-                .map(item -> OrderItemResponse.builder()
-                        .productId(item.getProduct().getId())
-                        .quantity(item.getQuantity())
-                        .price(item.getPrice())
-                        .build())
-                .collect(Collectors.toList());
-
         return OrderResponse.builder()
                 .id(order.getId())
                 .status(order.getStatus().name())
                 .totalAmount(order.getTotalAmount())
-                .items(items)
+                .userEmail(order.getUser().getEmail()) // 🔥 triggers lazy
+                .items(order.getOrderItems().stream()
+                        .map(item -> OrderItemResponse.builder()
+                                .productId(item.getProduct().getId())
+                                .productName(item.getProduct().getName())
+                                .quantity(item.getQuantity())
+                                .price(item.getPrice())
+                                .build())
+                        .toList())
                 .build();
     }
 }

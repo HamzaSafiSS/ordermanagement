@@ -1,11 +1,11 @@
 package com.hamza.ordermanagementsystem.service.impl;
 
+import com.hamza.ordermanagementsystem.dto.request.CreateUserRequest;
+import com.hamza.ordermanagementsystem.dto.response.UserResponse;
 import com.hamza.ordermanagementsystem.entity.User;
+import com.hamza.ordermanagementsystem.exception.ResourceNotFoundException;
 import com.hamza.ordermanagementsystem.repository.UserRepository;
 import com.hamza.ordermanagementsystem.service.UserService;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,47 +13,38 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
     public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     @Override
-    @Transactional
-    public void testLifecycle() {
+    public UserResponse createUser(CreateUserRequest request) {
 
-        System.out.println("===== TRANSIENT =====");
         User user = new User();
-        user.setFirstName("Abel");
-        user.setLastName("Tesfaye");
-        user.setEmail("abel@example.com");
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setEmail(request.getEmail());
 
-        // Not saved yet → TRANSIENT
+        User savedUser = userRepository.save(user);
 
-        System.out.println("===== PERSISTENT =====");
-        userRepository.save(user);
+        return mapToResponse(savedUser);
+    }
 
-        // Now managed (persistent)
+    @Override
+    public UserResponse getUser(Long id) {
 
-        System.out.println("===== DIRTY CHECKING =====");
-        user.setFirstName("Updated Abel");
-        // No save() but will auto update
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        System.out.println("===== FLUSH =====");
-        entityManager.flush();
+        return mapToResponse(user);
+    }
 
-        System.out.println("===== DETACH =====");
-        entityManager.detach(user);
-
-        user.setFirstName("Detached Change");
-
-        System.out.println("===== CLEAR =====");
-        entityManager.clear();
-
-        System.out.println("===== REMOVE =====");
-        User managedUser = entityManager.find(User.class, user.getId());
-        entityManager.remove(managedUser);
+    private UserResponse mapToResponse(User user) {
+        return UserResponse.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .build();
     }
 }
