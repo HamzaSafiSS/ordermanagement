@@ -50,12 +50,20 @@ public class OrderServiceImpl implements OrderService {
             Product product = productRepository.findById(itemReq.getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
+            // 🔥 CHECK STOCK
+            if (product.getStock() < itemReq.getQuantity()) {
+                throw new RuntimeException("Not enough stock");
+            }
+
+            // 🔥 DEDUCT STOCK
+            product.setStock(product.getStock() - itemReq.getQuantity());
+
             OrderItem item = new OrderItem();
             item.setProduct(product);
             item.setQuantity(itemReq.getQuantity());
             item.setPrice(product.getPrice());
 
-            order.addItem(item); // 🔥 important
+            order.addItem(item);
 
             total = total.add(product.getPrice()
                     .multiply(BigDecimal.valueOf(itemReq.getQuantity())));
@@ -63,6 +71,7 @@ public class OrderServiceImpl implements OrderService {
 
         order.setTotalAmount(total);
 
+        // 🔥 SAVE ORDER (cascade saves items)
         Order savedOrder = orderRepository.save(order);
 
         return mapToResponse(savedOrder);

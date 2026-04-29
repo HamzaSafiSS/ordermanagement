@@ -19,6 +19,9 @@ public class Product extends BaseEntity {
 
     private Integer stock;
 
+    @Version
+    private Long version;
+
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     private List<OrderItem> orderItems;
 }
