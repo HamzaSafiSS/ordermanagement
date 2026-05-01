@@ -5,6 +5,8 @@ import com.hamza.ordermanagementsystem.dto.response.ProductResponse;
 import com.hamza.ordermanagementsystem.service.ProductService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/products")
 public class ProductController {
@@ -23,5 +25,10 @@ public class ProductController {
     @GetMapping("/{id}")
     public ProductResponse getProduct(@PathVariable Long id) {
         return productService.getProduct(id);
+    }
+
+    @GetMapping("/top-selling")
+    public List<ProductResponse> getTopSelling() {
+        return productService.getTopSellingProducts();
     }
 }

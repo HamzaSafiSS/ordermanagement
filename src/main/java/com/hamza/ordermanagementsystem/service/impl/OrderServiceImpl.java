@@ -2,6 +2,7 @@ package com.hamza.ordermanagementsystem.service.impl;
 
 import com.hamza.ordermanagementsystem.dto.request.CreateOrderRequest;
 import com.hamza.ordermanagementsystem.dto.response.OrderItemResponse;
+import com.hamza.ordermanagementsystem.dto.projection.OrderSummaryDTO;
 import com.hamza.ordermanagementsystem.dto.response.OrderResponse;
 import com.hamza.ordermanagementsystem.entity.*;
 import com.hamza.ordermanagementsystem.entity.enums.OrderStatus;
@@ -12,8 +13,11 @@ import com.hamza.ordermanagementsystem.repository.UserRepository;
 import com.hamza.ordermanagementsystem.service.OrderService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -130,5 +134,40 @@ public class OrderServiceImpl implements OrderService {
                                 .build())
                         .toList())
                 .build();
+    }
+
+    @Override
+    public List<OrderResponse> getOrdersByUser(Long userId) {
+
+        return orderRepository.findOrdersByUserId(userId)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    @Override
+    public Double getTotalRevenue() {
+        return orderRepository.calculateTotalRevenue();
+    }
+
+    @Override
+    public List<OrderSummaryDTO> getOrderSummaries() {
+        return orderRepository.getOrderSummaries();
+    }
+
+    @Override
+    public Page<Order> getOrdersWithFilter(
+            String status,
+            LocalDateTime start,
+            LocalDateTime end,
+            int page,
+            int size) {
+
+        return orderRepository.findByStatusAndCreatedAtBetween(
+                Enum.valueOf(com.hamza.ordermanagementsystem.entity.enums.OrderStatus.class, status),
+                start,
+                end,
+                org.springframework.data.domain.PageRequest.of(page, size)
+        );
     }
 }

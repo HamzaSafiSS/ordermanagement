@@ -1,5 +1,6 @@
 package com.hamza.ordermanagementsystem.controller;
 
+import com.hamza.ordermanagementsystem.dto.projection.OrderSummaryDTO;
 import com.hamza.ordermanagementsystem.dto.request.CreateOrderRequest;
 import com.hamza.ordermanagementsystem.dto.response.OrderResponse;
 import com.hamza.ordermanagementsystem.service.OrderService;
@@ -39,5 +40,37 @@ public class OrderController {
     public String deleteOrder(@PathVariable Long orderId) {
         orderService.deleteOrder(orderId);
         return "Order deleted (check cascade)";
+    }
+
+    @GetMapping("/user/{userId}")
+    public List<OrderResponse> getOrdersByUser(@PathVariable Long userId) {
+        return orderService.getOrdersByUser(userId);
+    }
+
+    @GetMapping("/revenue")
+    public Double getRevenue() {
+        return orderService.getTotalRevenue();
+    }
+
+    @GetMapping("/summary")
+    public List<OrderSummaryDTO> getSummaries() {
+        return orderService.getOrderSummaries();
+    }
+
+    @GetMapping("/filter")
+    public Object filterOrders(
+            @RequestParam String status,
+            @RequestParam String start,
+            @RequestParam String end,
+            @RequestParam int page,
+            @RequestParam int size) {
+
+        return orderService.getOrdersWithFilter(
+                status,
+                java.time.LocalDateTime.parse(start),
+                java.time.LocalDateTime.parse(end),
+                page,
+                size
+        );
     }
 }

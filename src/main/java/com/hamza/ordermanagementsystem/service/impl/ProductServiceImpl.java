@@ -8,6 +8,8 @@ import com.hamza.ordermanagementsystem.repository.ProductRepository;
 import com.hamza.ordermanagementsystem.service.ProductService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ProductServiceImpl implements ProductService {
 
@@ -46,5 +48,19 @@ public class ProductServiceImpl implements ProductService {
                 .price(product.getPrice())
                 .stock(product.getStock())
                 .build();
+    }
+
+    @Override
+    public List<ProductResponse> getTopSellingProducts() {
+
+        return productRepository.findTopSellingProducts()
+                .stream()
+                .map(p -> ProductResponse.builder()
+                        .id(p.getId())
+                        .name(p.getName())
+                        .price(p.getPrice())
+                        .stock(p.getStock())
+                        .build())
+                .toList();
     }
 }
